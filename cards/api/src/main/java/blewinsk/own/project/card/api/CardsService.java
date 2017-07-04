@@ -11,9 +11,9 @@ public interface CardsService {
 
     List<CardInfo> getCardsInfoForPANs(List<String> PANs) throws InvalidPANException, NoSuchBankException;
 
-    CardInfo getCardInfoForIIN(String INN) throws NoSuchBankException;
+    CardInfo getCardInfoForIIN(String INN);
 
-    List<CardInfo> getCardsInfoForIINs(List<String> INNs) throws NoSuchBankException;
+    List<CardInfo> getCardsInfoForIINs(List<String> INNs);
 
     void addBank(String INN, String bankName);
 }

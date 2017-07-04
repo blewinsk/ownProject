@@ -1,4 +1,4 @@
 package blewinsk.own.project.commons.exceptions;
 
-public class TechnicalException extends Throwable {
+public class TechnicalException extends RuntimeException {
 }

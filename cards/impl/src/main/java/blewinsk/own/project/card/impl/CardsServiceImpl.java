@@ -1,12 +1,11 @@
 package blewinsk.own.project.card.impl;
 
 import blewinsk.own.project.banks.api.BanksService;
-import blewinsk.own.project.commons.exceptions.TechnicalException;
 import blewinsk.own.project.card.api.CardInfo;
 import blewinsk.own.project.card.api.CardsService;
 import blewinsk.own.project.card.api.exceptions.InvalidPANException;
 import blewinsk.own.project.commons.exceptions.NoSuchBankException;
-import blewinsk.own.project.commons.exceptions.ServiceException;
+import blewinsk.own.project.commons.exceptions.TechnicalException;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,9 +14,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @ComponentScan(basePackages = "blewinsk.own.project.card.impl")
@@ -25,7 +24,7 @@ public class CardsServiceImpl implements CardsService {
 
     private static final Logger LOG = LogManager.getLogger(CardsServiceImpl.class);
 
-    //it will be always static or should i take it from DB?
+    //should i take it from DB?
     private Map<String, String> iinRangesMap = new HashMap<String, String>() {{
         put("^5(3[5-9][8-9]|4[\\d]{2})[\\d]{2}$", "RolBank");
         put("^52[\\d]{4}$", "nBank");
@@ -54,41 +53,34 @@ public class CardsServiceImpl implements CardsService {
 
     @Override
     public List<CardInfo> getCardsInfoForPANs(List<String> panNumbers) throws InvalidPANException, NoSuchBankException {
-        List<CardInfo> cardInfos = new LinkedList<>();
-        for (String panNumber : panNumbers) {
-            cardInfos.add(getCardInfoForPAN(panNumber));
-        }
-        return cardInfos;
+        return panNumbers.stream().map(this::getCardInfoForPAN).collect(Collectors.toList());
     }
 
     @Override
-    public CardInfo getCardInfoForIIN(String iin) throws NoSuchBankException {
-        String bankName = iinRangesMap.keySet().stream().filter(iin::matches).findFirst()
-            .orElseThrow(() -> new NoSuchBankException(null));
-        //if innNumber be like "abcabc" we won't find bank and throw exception
+    public CardInfo getCardInfoForIIN(String iin) {
 
-        LOG.info("Found bank name {0} for {1} {2}", bankName, "INN " + iin);
+        String bankName = iinRangesMap.entrySet().stream().filter(entrySet -> iin.matches(entrySet.getKey()))
+            .findFirst()
+            .orElseThrow(() -> new NoSuchBankException(null)).getValue();
+
+        LOG.info("Found bank name {0} for IIN {2}", bankName, iin);
 
         Boolean isBankSuspended;
 
         try {
             isBankSuspended = banksService.isBankSuspended(bankName);
             //is it a exception when bank is suspended? my service should throw exception or the one which calls me should check it?
-        } catch (TechnicalException e) {
-            LOG.error("Error receiving bank info", e);
-            throw new ServiceException();
+        } catch (TechnicalException exception) {
+            LOG.error("Error receiving bank info", exception);
+            throw exception;
         }
         return new CardInfo(iin, bankName,
             BooleanUtils.isTrue(isBankSuspended));//BooleanUtils because banksService return "big" boolean
     }
 
     @Override
-    public List<CardInfo> getCardsInfoForIINs(List<String> IINs) throws NoSuchBankException {
-        List<CardInfo> cardInfos = new LinkedList<>();
-        for (String IIN : IINs) {
-            cardInfos.add(getCardInfoForIIN(IIN));
-        }
-        return cardInfos;
+    public List<CardInfo> getCardsInfoForIINs(List<String> IINs) {
+        return IINs.stream().map(this::getCardInfoForIIN).collect(Collectors.toList());
     }
 
     private boolean invalidPanNumber(String panNumber) {
@@ -105,9 +97,13 @@ public class CardsServiceImpl implements CardsService {
     @Override
     public void addBank(String INN, String bankName) {
         //should it be here some kind of validation?
-        if(iinRangesMap.values().contains(bankName)) {
-            throw new ServiceException();
+        if (iinRangesMap.values().contains(bankName)) {
+            throw new TechnicalException();
         }
         iinRangesMap.put(INN, bankName);
+    }
+
+    public Map<String, String> getIinRangesMap() {
+        return iinRangesMap;
     }
 }
