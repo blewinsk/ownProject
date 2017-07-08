@@ -10,7 +10,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -19,7 +18,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
-@ComponentScan(basePackages = "blewinsk.own.project.card.impl")
 public class CardsServiceImpl implements CardsService {
 
     private static final Logger LOG = LogManager.getLogger(CardsServiceImpl.class);

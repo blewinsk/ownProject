@@ -13,6 +13,7 @@
         <module>cards</module>
         <module>banks</module>
         <module>commons</module>
+        <module>global</module>
     </modules>
 
     <dependencyManagement>
@@ -56,6 +57,11 @@
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
                 <version>2.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
