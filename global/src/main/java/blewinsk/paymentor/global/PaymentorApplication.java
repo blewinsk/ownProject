@@ -1,9 +1,11 @@
-package blewinsk;
+package blewinsk.paymentor.global;
 
 import blewinsk.paymentor.services.cards.api.CardInfo;
 import blewinsk.paymentor.services.cards.api.CardsService;
 import blewinsk.paymentor.services.cards.api.exceptions.InvalidPanException;
 import blewinsk.paymentor.commons.exceptions.NoSuchBankException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -13,24 +15,27 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MainClass {
+public class PaymentorApplication {
 
     private static final int ADD_CARD_NUMBER = 1;
     private static final int SHOW_CARD_LIST = 2;
     private static final int GET_CARD_INFO = 3;
-    private static final int EXIT_OPTION = 100;
+    private static final int EXIT_OPTION = 4;
+
+    private static final Logger LOG = LogManager.getLogger(PaymentorApplication.class);
 
     private final CardsService cardsService;
 
-    public MainClass(){
+    public PaymentorApplication(){
         ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/spring/global-beans.xml");
         cardsService = context.getBean(CardsService.class);
     }
 
     public static void main(String[] args) {
 
-        MainClass mainClass = new MainClass();
-        mainClass.runMenu();
+        PaymentorApplication paymentorApplication = new PaymentorApplication();
+        LOG.info("Run paymentor application");
+        paymentorApplication.runMenu();
     }
 
     private void runMenu() {
@@ -50,9 +55,8 @@ public class MainClass {
                         writeListInfo(cardNumbers);
                         break;
                     case GET_CARD_INFO:
-                        List<CardInfo> cardInfos = new LinkedList<>();
                         try {
-                            cardsService.getCardsInfoForPanList(cardNumbers);
+                            List<CardInfo> cardInfos = cardsService.getCardsInfoForPanList(cardNumbers);
                             writeListInfo(cardInfos);
                         } catch (InvalidPanException | NoSuchBankException e) {
                             System.out.println("At least one of card number is invalid");
@@ -91,6 +95,8 @@ public class MainClass {
         System.out.println(ADD_CARD_NUMBER + ". Add card number");
         System.out.println(SHOW_CARD_LIST + ". Show entered card numbers");
         System.out.println(GET_CARD_INFO + ". Get info for entered card numbers");
+        System.out.println(EXIT_OPTION + ". Exit application");
+        System.out.println("Option: ");
     }
 
 }

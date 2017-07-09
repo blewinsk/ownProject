@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 public class BanksServiceImpl implements BanksService {
 
     public Boolean isBankSuspended(String bankId) throws NoSuchBankException, TechnicalException {
-        throw new UnsupportedOperationException("Missing dev");
+        return null;
+        //throw new UnsupportedOperationException("Missing dev");
     }
 }

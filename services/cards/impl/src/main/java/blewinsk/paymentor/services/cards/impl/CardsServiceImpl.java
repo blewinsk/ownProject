@@ -44,9 +44,10 @@ public class CardsServiceImpl implements CardsService {
 
     public CardInfo getCardInfoForPan(String panNumber) throws InvalidPanException, NoSuchBankException {
         if (invalidPanNumber(panNumber)) {
+            LOG.error("Invalid PAN " + panNumber);
             throw new InvalidPanException(panNumber);
         }
-        return getCardInfoForIin(panNumber.substring(INN_LENGTH));
+        return getCardInfoForIin(panNumber.substring(0, INN_LENGTH));
     }
 
     @Override
@@ -57,11 +58,13 @@ public class CardsServiceImpl implements CardsService {
     @Override
     public CardInfo getCardInfoForIin(String iin) {
 
+        LOG.info("Getting card info for " + iin);
+
         String bankName = iinRangesMap.entrySet().stream().filter(entrySet -> iin.matches(entrySet.getKey()))
             .findFirst()
             .orElseThrow(() -> new NoSuchBankException(null)).getValue();
 
-        LOG.info("Found bank name {0} for IIN {2}", bankName, iin);
+        LOG.info("Found bank name " + bankName + " for IIN " + iin);
 
         Boolean isBankSuspended;
 
