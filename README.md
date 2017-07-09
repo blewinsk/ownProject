@@ -1,5 +1,5 @@
 # paymentor
-To run application build in $PATH/paymentor\
+To run application build in $PATH_TO_PROJECT/paymentor\
 mvn clean install\
 then change dir to global and run\
 mvn exec:java
