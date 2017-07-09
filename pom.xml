@@ -10,10 +10,9 @@
     <version>1.0-SNAPSHOT</version>
 
     <modules>
-        <module>cards</module>
-        <module>banks</module>
         <module>commons</module>
         <module>global</module>
+        <module>services</module>
     </modules>
 
     <dependencyManagement>
